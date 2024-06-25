@@ -3,18 +3,23 @@ const router = express.Router();
 const { getAllActivities, getActivityById, getActivityByName, createActivity, updateActivity, getPublicRoutinesByActivity } = require('../db');
 const { requireUser, requiredNotSent } = require('./utils')
 
-// GET /api/activities/:activityId/routines
-router.get('/:activityId/routines', async (req, res, next) => {
+router.get('/:activityId', async (req, res, next) => {
+  console.log('Request received at /activities/:activityId');
+  console.log('Activity ID:', req.params.activityId); // Debug statement
+
   try {
-    const routines = await getPublicRoutinesByActivity({id: req.params.activityId});
-    if(routines) {
-      res.send(routines);
-    } else {
-      next({
+    const { activityId } = req.params;
+    const activity = await getActivityById(activityId);
+
+    if (!activity) {
+      console.log(`No activity found with ID ${activityId}`); // Debug statement
+      return next({
         name: 'NotFound',
-        message: `No Routines found for Activity ${req.params.activityId}`
-      })
+        message: `No activity found with ID ${activityId}`
+      });
     }
+
+    res.send(activity);
   } catch (error) {
     next(error);
   }

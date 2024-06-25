@@ -3,7 +3,23 @@ const router = express.Router();
 const { getAllPublicRoutines, createRoutine, updateRoutine, getRoutineById, destroyRoutine, addActivityToRoutine, getRoutineActivitiesByRoutine } = require('../db');
 const { requireUser, requiredNotSent } = require('./utils')
 
-
+// get routines by id
+router.get('/:routineId', async (req, res, next) => {
+  try {
+    const { routineId } = req.params;
+    const routine = await getRoutineById(routineId);
+    if (!routine) {
+      next({
+        name: 'NotFound',
+        message: `No routine by ID ${routineId}`
+      });
+    } else {
+      res.send(routine);
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 
 // GET /api/routines
 router.get('/', async (req, res, next) => {
